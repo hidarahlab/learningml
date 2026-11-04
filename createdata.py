@@ -1,10 +1,23 @@
 import numpy as np, pandas as pd
 
-# # ============================================================
-# # 1. BIKIN DATA SIMULASI
-# # ============================================================
-rng = np.random.default_rng(42)   # generator angka acak, seed 42 biar hasilnya selalu sama tiap run
-n = 10_000                        # jumlah transaksi (_ cuma pemisah biar gampang dibaca)
+
+# ============================================================
+# 0. PENGATURAN SEED
+# ============================================================
+SEED = None   # angka   -> data selalu sama tiap run (buat bandingin eksperimen)
+            # None    -> data acak tiap run, seed-nya di-print biar bisa diulang
+
+if SEED is None:                                          # kalau mode acak...
+    SEED = int(np.random.SeedSequence().entropy % 10_000) # ...pilih seed acak 0-9999
+print("Seed yang dipakai:", SEED)                         # SELALU catat seed-nya
+
+rng = np.random.default_rng(SEED)   # generator angka acak berdasarkan seed di atas
+
+
+# ============================================================
+# 1. BIKIN DATA SIMULASI
+# ============================================================
+n = 10_000   # jumlah transaksi (_ cuma pemisah biar gampang dibaca)
 
 df = pd.DataFrame({                                       # bikin tabel dari dictionary {nama_kolom: isi}
     "nominal": rng.lognormal(12, 1, n).round(-3),         # nominal acak: banyak kecil, sesekali gede; dibulatkan ke ribuan
@@ -21,8 +34,16 @@ skor = (
     + df.device_baru * 2.5           # pakai device baru +2.5
 )
 
-df["fraud"] = (skor + rng.normal(0, 1, n) > 5.5).astype(int)  # tambah noise acak, kalau skor > 5.5 = fraud (1), selain itu aman (0)
+df["fraud"] = (skor + rng.normal(0, 1, n) > 5.5).astype(int)  # tambah noise acak, skor > 5.5 = fraud (1), selain itu aman (0)
 
 print(df.head())                              # tampilkan 5 baris pertama
 print("Jumlah baris & kolom:", df.shape)      # (baris, kolom)
 print("Rasio fraud:", df.fraud.mean())        # mean dari kolom 0/1 = proporsi fraud
+
+
+# ============================================================
+# 2. SIMPAN KE CSV
+# ============================================================
+nama_file = "data_transaksi.csv"              # nama file disimpan di satu variabel biar konsisten
+df.to_csv(nama_file, index=False)             # index=False: kolom 0,1,2,... nggak ikut disimpan
+print("Tersimpan ke", nama_file)
