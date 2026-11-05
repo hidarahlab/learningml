@@ -1,5 +1,5 @@
 import numpy as np, pandas as pd
-
+from datetime import datetime
 
 # ============================================================
 # 0. PENGATURAN SEED
@@ -44,6 +44,7 @@ print("Rasio fraud:", df.fraud.mean())        # mean dari kolom 0/1 = proporsi f
 # ============================================================
 # 2. SIMPAN KE CSV
 # ============================================================
-nama_file = "data_transaksi.csv"              # nama file disimpan di satu variabel biar konsisten
-df.to_csv(nama_file, index=False)             # index=False: kolom 0,1,2,... nggak ikut disimpan
+waktu = datetime.now().strftime("%Y%m%d_%H%M%S")    # format: 20261105_081830 (tahun bulan tgl _ jam menit detik)
+nama_file = f"data_transaksi_{waktu}.csv"           # f-string: {waktu} diganti isi variabel waktu
+df.to_csv(nama_file, index=False)                   # index=False: kolom 0,1,2,... nggak ikut disimpan
 print("Tersimpan ke", nama_file)
